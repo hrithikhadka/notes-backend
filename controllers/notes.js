@@ -1,4 +1,5 @@
 const notesRouter = require("express").Router();
+const mongoose = require("mongoose");
 const Note = require("../models/note");
 
 //get all notes
@@ -9,6 +10,12 @@ notesRouter.get("/", async (request, response) => {
 
 //get a single note
 notesRouter.get("/:id", async (request, response) => {
+  const { id } = request.params;
+
+  //prevent mongoose autocasting invalid ids
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return response.status(400).json({ error: "Invalid note ID format" });
+  }
   const note = await Note.findById(request.params.id);
   if (note) {
     response.json(note);
